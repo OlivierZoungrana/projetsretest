@@ -1,0 +1,37 @@
+pipeline {
+   agent any
+   stages {
+     stage('Checkout') {
+       steps {
+         git branch: 'main',
+            url: 'https://github.com/OlivierZoungrana/projetsretest'
+
+ }
+ }
+ stage('Build'){
+   steps{
+     sh "yarn run build"
+ }
+ 
+ }
+
+ stage('Build Docker Image') {
+   steps {
+       
+      sh "docker build -t olivierzoungrana/projetsretest:1.0.0  /var/lib/jenkins/workspace/${JOB_NAME}"
+ }
+ }
+
+ stage('Upload To DockerHub') {
+ environment {
+DOCKERHUB_CREDENTIALS=credentials('dockerhub-cred-olivier')
+ }
+ steps {
+		        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+				sh 'docker tag olivierzoungrana/projetsretest:1.0.0 olivierhz/dockerhub:projetsretest'
+				sh 'docker push olivierhz/projetsretest:1.0.0'
+			}
+ }
+
+ 
+}
